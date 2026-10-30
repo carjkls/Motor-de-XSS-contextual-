@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "xss-contextual-scanner"
+version = "0.1.0"
+description = "Reflected XSS scanner: parses the real HTML/JS reflection context and generates a syntactically valid payload for it, confirming execution in a headless browser"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = [
+    "httpx>=0.27,<1.0",
+    "beautifulsoup4>=4.12",
+    "playwright>=1.40,<2.0",
+]
+
+[project.optional-dependencies]
+lab = ["flask>=3.0"]
+
+[project.scripts]
+xsscan = "xss_scanner.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["xss_scanner*"]
