@@ -9,3 +9,4 @@ venv/
 reports/
 *.json.report
 .DS_Store
+.superpowers/

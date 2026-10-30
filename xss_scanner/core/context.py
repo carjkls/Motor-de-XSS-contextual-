@@ -103,12 +103,28 @@ def _classify_js_positions(text: str, token: str) -> list[ReflectionContext]:
 
 
 def _attribute_quote_char(html: str, attribute_name: str, token: str) -> str | None:
-    pattern = rf'{re.escape(attribute_name)}\s*=\s*(["\']?){re.escape(token)}'
-    match = re.search(pattern, html, re.IGNORECASE)
-    if not match:
-        return None
-    quote = match.group(1)
-    return quote or None
+    """Find the quote char of the attribute occurrence whose *value* actually
+    contains ``token`` (token may appear anywhere in the value, not only
+    right after the opening quote)."""
+    pattern = rf'{re.escape(attribute_name)}\s*=\s*'
+    for match in re.finditer(pattern, html, re.IGNORECASE):
+        pos = match.end()
+        if pos >= len(html):
+            continue
+        ch = html[pos]
+        if ch in ('"', "'"):
+            end = html.find(ch, pos + 1)
+            if end == -1:
+                continue
+            value, quote = html[pos + 1:end], ch
+        else:
+            end = pos
+            while end < len(html) and html[end] not in " \t\n\r>":
+                end += 1
+            value, quote = html[pos:end], None
+        if token in value:
+            return quote
+    return None
 
 
 def _dedupe(contexts: list[ReflectionContext]) -> list[ReflectionContext]:

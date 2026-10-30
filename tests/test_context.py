@@ -16,6 +16,14 @@ class ContextTest(unittest.TestCase):
         self.assertEqual(ctx, [ReflectionContext("html_attribute", tag_name="input",
                                                   attribute_name="value", quote_char='"')])
 
+    def test_html_attribute_double_quote_with_text_before_token(self):
+        # Regression: a real app rarely reflects the value as the whole
+        # attribute, usually with a prefix (e.g. "search: TOK"). The quote
+        # must still be detected, not silently misreported as unquoted.
+        ctx = find_reflection_contexts('<input value="search: TOK">', "TOK")
+        self.assertEqual(ctx[0].context_type, "html_attribute")
+        self.assertEqual(ctx[0].quote_char, '"')
+
     def test_html_attribute_single_quote(self):
         ctx = find_reflection_contexts("<input value='TOK'>", "TOK")
         self.assertEqual(ctx[0].quote_char, "'")
